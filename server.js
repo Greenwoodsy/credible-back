@@ -29,6 +29,7 @@ app.use(
   cors({
     origin: [
       "https://www.credibleinvestmentexperts.com",
+      "https://credibleinvestmentexperts.com/",
       "http://localhost:3000",
       "https://backend.credibleinvestmentexperts.com",
     ],
