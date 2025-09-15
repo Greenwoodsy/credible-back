@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Payment Transaction</title>
+    <style>
+      body {
+        background-color: #f2f9f6;
+        padding: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #2f3e46;
+      }
+
+      .container {
+        background-color: #e6f4ef;
+        padding: 24px;
+        border-radius: 10px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .header {
+        background-color: #c7ede6;
+        padding: 16px;
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .header h2 {
+        color: #207567;
+        margin: 0;
+        font-size: 22px;
+      }
+
+      h3 {
+        font-size: 18px;
+        color: #2a9d8f;
+      }
+
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 10px 0;
+      }
+
+      .info span {
+        font-weight: bold;
+        color: #2a9d8f;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 10px 16px;
+        font-size: 16px;
+        font-weight: 600;
+        background-color: #2a9d8f;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        margin: 10px 0;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 14px;
+        color: #6c757d;
+      }
+
+      strong {
+        color: #2a9d8f;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>CredibleInvestmentExperts</h2>
+      </div>
+
+      <h3>Hello,</h3>
+
+      <p>A new transaction has been initiated by 
+        <span class="info">{{name}}</span>. You can view the full transaction details using the button below:</p>
+
+      <p><a class="btn" href="{{link}}">View Transaction Details</a></p>
+
+      <p>Amount: <span class="info">${{amount}}</span></p>
+
+      <div class="footer">
+        Notification from <strong>CredibleInvestmentExperts</strong>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investment Approved</title>
+    <style>
+      body {
+        background-color: #f2f9f6;
+        padding: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #2f3e46;
+      }
+      .container {
+        background-color: #e6f4ef;
+        padding: 24px;
+        border-radius: 10px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .header {
+        background-color: #c7ede6;
+        padding: 16px;
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .header h1 {
+        color: #207567;
+        margin: 0;
+        font-size: 24px;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 16px 0;
+      }
+      ul li {
+        margin: 8px 0;
+        font-size: 16px;
+      }
+      strong {
+        color: #2a9d8f;
+      }
+      p {
+        margin: 10px 0;
+        line-height: 1.6;
+      }
+      a {
+        display: inline-block;
+        margin-top: 24px;
+        padding: 12px 20px;
+        background-color: #2a9d8f;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      a:hover {
+        background-color: #207567;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Congratulations, {{userName}}!</h1>
+      </div>
+      <p>
+        Your investment has been successfully <strong>approved</strong>. Here
+        are the details:
+      </p>
+      <ul>
+        <li><strong>Investment Plan:</strong> {{plan}}</li>
+        <li><strong>Amount:</strong> ${{amount}}</li>
+        <li><strong>Start Date:</strong> {{startDate}}</li>
+        <li><strong>End Date:</strong> {{endDate}}</li>
+        <li><strong>Maturity Amount:</strong> ${{maturityAmount}}</li>
+      </ul>
+      <p>
+        We appreciate your trust in <strong>CredibleInvestmentExperts</strong>.
+        You can view the full status and track your investment by clicking the
+        button below.
+      </p>
+      <a href="https://www.credibleinvestmentexperts.com/invest-status">View Investment</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Verification</title>
+    <style>
+      body {
+        background-color: #f2f9f6; /* Light teal */
+        padding: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #2f3e46; /* Dark slate */
+      }
+      .container {
+        background-color: #e6f4ef; /* Soft teal */
+        padding: 24px;
+        border-radius: 10px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .logo {
+        padding: 16px;
+        background-color: #c7ede6; /* Lighter teal */
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo h2 {
+        color: #207567; /* Dark teal */
+        margin: 0;
+        font-size: 24px;
+      }
+      h2.hello {
+        color: #207567;
+        margin-top: 0;
+        font-size: 20px;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #2a9d8f; /* Medium teal */
+      }
+      p.appre {
+        line-height: 1.6;
+        font-size: 16px;
+        margin: 10px 0;
+      }
+      p.validity {
+        font-size: 14px;
+        color: #2f3e46;
+        margin-top: 10px;
+      }
+      a.btn {
+        display: inline-block;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        background-color: #2a9d8f; /* Medium teal */
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-top: 20px;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 14px;
+        color: #6c757d; /* Grey */
+      }
+      .footer strong {
+        color: #2a9d8f;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <h2>CredibleInvestmentExperts</h2>
+      </div>
+      <h2 class="hello">
+        Hello <span class="highlight">{{name}}</span>
+      </h2>
+      <p class="appre">
+        We sincerely appreciate you choosing CredibleInvestmentExperts as your partner on
+        the path to financial growth and success. To help you get started,
+        please use the URL below to verify your account. This will ensure your
+        access to all of our valuable resources and tools, so you can begin
+        building the wealth and future you deserve. Please note that this link
+        will remain active for the next 1 hour.
+      </p>
+
+      <p class="validity">This link is valid for 1 hour.</p>
+
+      <a href="{{link}}" class="btn">Verify Account</a>
+
+      <div class="footer">
+        <p>Regards,</p>
+        <p><strong>CredibleInvestmentExperts</strong> Team</p>
+      </div>
+    </div>
+  </body>
+</html>

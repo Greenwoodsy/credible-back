@@ -1,0 +1,90 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdrawal Email</title>
+    <style>
+      body {
+        background-color: #f2f9f6; /* Light teal */
+        padding: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #2f3e46; /* Dark slate */
+      }
+      .container {
+        background-color: #e6f4ef; /* Soft teal */
+        padding: 24px;
+        border-radius: 10px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .logo {
+        background-color: #c7ede6; /* Light teal */
+        padding: 16px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo h2 {
+        color: #207567; /* Dark teal */
+        margin: 0;
+        font-size: 24px;
+      }
+      h2.hello {
+        color: #207567;
+        margin-top: 0;
+        font-size: 20px;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 12px 0;
+      }
+      strong {
+        color: #2a9d8f; /* Medium teal */
+      }
+      .color-danger {
+        color: #d94f4f; /* Soft red for highlight */
+        font-weight: 600;
+      }
+      a.btn-success {
+        display: inline-block;
+        padding: 10px 18px;
+        background-color: #2a9d8f; /* Medium teal */
+        color: #fff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+      a.btn-success:hover {
+        background-color: #207567; /* Dark teal */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <h2>CredibleInvestmentExperts</h2>
+      </div>
+
+      <h2 class="hello">Hello,</h2>
+
+      <p>
+        A withdrawal of <strong>${{amount}}</strong> has been processed by
+        <span class="color-danger">{{name}}</span>.
+      </p>
+
+      <p>
+        <strong>Wallet Address:</strong> {{walletAddress}}
+      </p>
+
+      <p>You can view the details by clicking the button below:</p>
+
+      <p>
+        <a href="{{link}}" class="btn-success">View Transaction Details</a>
+      </p>
+    </div>
+  </body>
+</html>
