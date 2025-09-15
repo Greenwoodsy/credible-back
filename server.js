@@ -30,7 +30,7 @@ app.use(
     origin: [
       "https://www.credibleinvestmentexperts.com",
       "http://localhost:3000",
-      "https://api.credibleinvestmentexperts.com",
+      "https://backend.credibleinvestmentexperts.com",
     ],
     credentials: true,
   })
