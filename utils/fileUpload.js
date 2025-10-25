@@ -8,6 +8,8 @@ const allowedTypes = [
   "image/png",
   "image/webp",
   "application/pdf",
+  "image/heic", // ✅ Important for iPhone
+  "image/heif", // ✅ Sometimes this instead
 ];
 
 const fileFilter = (req, file, cb) => {
