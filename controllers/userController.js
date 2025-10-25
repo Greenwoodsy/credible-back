@@ -323,7 +323,6 @@ const loginUser = asyncHandler(async (req, res) => {
 //   }
 // });
 
-
 //To Log-out User
 const logoutUser = asyncHandler(async (req, res) => {
   res.cookie("token", "", {
@@ -356,8 +355,7 @@ const getUser = asyncHandler(async (req, res) => {
       balance,
       investmentBalance,
       totalMaturityAmount,
-      isImpersonated
-
+      isImpersonated,
     } = user;
 
     res.status(200).json({
@@ -375,7 +373,7 @@ const getUser = asyncHandler(async (req, res) => {
       balance,
       investmentBalance,
       totalMaturityAmount,
-      isImpersonated
+      isImpersonated,
     });
   } else {
     res.status(404);
@@ -514,7 +512,7 @@ const sendAutomatedEmail = asyncHandler(async (req, res) => {
   }
 });
 
-//To send email manually 
+//To send email manually
 const sendComposedEmail = asyncHandler(async (req, res) => {
   const { subject, send_to, reply_to, message } = req.body;
 
@@ -533,15 +531,15 @@ const sendComposedEmail = asyncHandler(async (req, res) => {
       sent_from,
       reply_to,
       "custom", // <- the template name (e.g., views/custom.handlebars)
-      null,     // name
-      null,     // link
-      null,     // amount
-      null,     // status
-      null,     // transactionId
-      null,     // plan
-      null,     // startDate
-      null,     // kycStatus
-      message   // message passed into context
+      null, // name
+      null, // link
+      null, // amount
+      null, // status
+      null, // transactionId
+      null, // plan
+      null, // startDate
+      null, // kycStatus
+      message // message passed into context
     );
 
     res.status(200).json({ message: "Composed email sent successfully" });
@@ -550,7 +548,6 @@ const sendComposedEmail = asyncHandler(async (req, res) => {
     throw new Error("Failed to send composed email");
   }
 });
-
 
 //To send verification Email
 const sendVerificationEmail = asyncHandler(async (req, res) => {
@@ -1060,7 +1057,6 @@ const editDepositBalance = async (req, res) => {
 
 // const uploadKycDocuments = asyncHandler(async (req, res) => {
 //   try {
-//     // Ensure the user is authenticated
 //     const userId = req.user.id;
 
 //     // Fetch user from the database
@@ -1070,32 +1066,20 @@ const editDepositBalance = async (req, res) => {
 //       throw new Error("User not found");
 //     }
 
-//     // Prevent re-upload if KYC is still pending
 //     if (user.kycStatus === "Pending") {
 //       res.status(400);
-//       throw new Error(
-//         "You have already submitted your KYC documents. Please wait for approval."
-//       );
+//       throw new Error("You have already submitted your KYC documents. Please wait for approval.");
 //     }
 
-//     // Check if required files are provided
 //     if (!req.files || !req.files.front || !req.files.back) {
 //       res.status(400);
-//       throw new Error(
-//         "Please upload both the front and back of your document."
-//       );
+//       throw new Error("Please upload both the front and back of your document.");
 //     }
 
-//     // Paths of the uploaded files
-//     const frontDocPath = req.files.front[0].path;
-//     const backDocPath = req.files.back[0].path;
+//     // Cloudinary automatically returns a URL for the uploaded files
+//     const frontDocUrl = req.files.front[0].path;
+//     const backDocUrl = req.files.back[0].path;
 
-//     // Convert the file paths to public URLs
-//     const baseUrl = process.env.BASE_IMG_URL;
-//     const frontDocUrl = `${baseUrl}/${frontDocPath.replace(/\\/g, "/")}`;
-//     const backDocUrl = `${baseUrl}/${backDocPath.replace(/\\/g, "/")}`;
-
-//     // Update the user's KYC field and status in the database
 //     user.kyc = {
 //       frontDoc: frontDocUrl,
 //       backDoc: backDocUrl,
@@ -1107,15 +1091,15 @@ const editDepositBalance = async (req, res) => {
 
 //     console.log("KYC Status being sent:", user.kycStatus);
 
-
-//     const adminEmail = process.env.ADMIN_EMAIL || "invest@wealtybuilders.com";
+//     // Send notification email
+//     const adminEmail = process.env.ADMIN_EMAIL || "invest@credibleinvestmentexperts.com";
 //     await sendEmail(
 //       "New KYC Submission",
 //       adminEmail,
-//       process.env.EMAIL_USER, // Sent from
-//       process.env.EMAIL_USER, // Reply-to
-//       "kyc-notification", // Name of the handlebars template
-//       user.name, // User's name
+//       process.env.EMAIL_USER,
+//       process.env.EMAIL_USER,
+//       "kyc-notification",
+//       user.name,
 //       user.kycStatus
 //     );
 
@@ -1130,64 +1114,53 @@ const editDepositBalance = async (req, res) => {
 // });
 
 const uploadKycDocuments = asyncHandler(async (req, res) => {
-  try {
-    const userId = req.user.id;
+  const user = await User.findById(req.user.id);
 
-    // Fetch user from the database
-    const user = await User.findById(userId);
-    if (!user) {
-      res.status(404);
-      throw new Error("User not found");
-    }
-
-    if (user.kycStatus === "Pending") {
-      res.status(400);
-      throw new Error("You have already submitted your KYC documents. Please wait for approval.");
-    }
-
-    if (!req.files || !req.files.front || !req.files.back) {
-      res.status(400);
-      throw new Error("Please upload both the front and back of your document.");
-    }
-
-    // Cloudinary automatically returns a URL for the uploaded files
-    const frontDocUrl = req.files.front[0].path; 
-    const backDocUrl = req.files.back[0].path; 
-
-    user.kyc = {
-      frontDoc: frontDocUrl,
-      backDoc: backDocUrl,
-      status: "Pending",
-    };
-    user.kycStatus = "Pending";
-
-    await user.save();
-
-    console.log("KYC Status being sent:", user.kycStatus);
-
-    // Send notification email
-    const adminEmail = process.env.ADMIN_EMAIL || "invest@credibleinvestmentexperts.com";
-    await sendEmail(
-      "New KYC Submission",
-      adminEmail,
-      process.env.EMAIL_USER,
-      process.env.EMAIL_USER,
-      "kyc-notification",
-      user.name,
-      user.kycStatus
-    );
-
-    res.status(200).json({
-      message: "KYC documents uploaded successfully!",
-      kyc: user.kyc,
-    });
-  } catch (error) {
-    res.status(500);
-    throw new Error(`Error uploading KYC documents: ${error.message}`);
+  if (!req.files?.front || !req.files?.back) {
+    throw new Error("Upload both front and back documents");
   }
+
+  // Update DB status only
+  user.kyc = { status: "Pending" };
+  user.kycStatus = "Pending";
+  await user.save();
+
+  const attachments = [
+    {
+      filename: req.files.front[0].originalname,
+      content: req.files.front[0].buffer,
+      contentType: req.files.front[0].mimetype, // ✅ Add this
+    },
+    {
+      filename: req.files.back[0].originalname,
+      content: req.files.back[0].buffer,
+      contentType: req.files.back[0].mimetype, // ✅ Add this
+    },
+  ];
+
+  await sendEmail(
+    "New KYC Submission", // subject
+    process.env.ADMIN_EMAIL, // send_to
+    process.env.EMAIL_USER, // sent_from
+    process.env.EMAIL_USER, // reply_to
+    "kyc-notification", // template
+    user.name, // name
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    user.kycStatus, // kyc status available in template
+    null, // message
+    attachments // ✅ Attach documents
+  );
+
+  res.status(200).json({
+    message: "KYC submitted. Await approval.",
+    status: user.kycStatus,
+  });
 });
-
-
 
 const getPendingKycRequests = asyncHandler(async (req, res) => {
   try {
@@ -1207,7 +1180,6 @@ const getPendingKycRequests = asyncHandler(async (req, res) => {
     throw new Error(`Error fetching pending KYC requests: ${error.message}`);
   }
 });
-
 
 // Approve KYC request for a specific user
 const approveKycRequest = asyncHandler(async (req, res) => {
@@ -1235,7 +1207,6 @@ const approveKycRequest = asyncHandler(async (req, res) => {
 
     console.log("KYC Status being update to:", user.kycStatus);
 
-
     // Send KYC approval email
     await sendEmail(
       "Your KYC Verification is Approved",
@@ -1245,8 +1216,7 @@ const approveKycRequest = asyncHandler(async (req, res) => {
       "emails/kyc-approved", // Correct path to the template
       user.name
     );
-    
-    
+
     res.status(200).json({
       message: "KYC request approved successfully",
       kyc: user.kyc, // Return updated KYC details
@@ -1282,7 +1252,6 @@ const rejectKycRequest = asyncHandler(async (req, res) => {
     await user.save();
     console.log("KYC Status being updated to:", user.kycStatus);
 
-
     // Send KYC rejection email
     await sendEmail(
       "Your KYC Verification is Rejected",
@@ -1292,7 +1261,6 @@ const rejectKycRequest = asyncHandler(async (req, res) => {
       "emails/kyc-rejected", // Correct path to the template
       user.name
     );
-    
 
     res.status(200).json({
       message: "KYC request rejected successfully",
@@ -1303,12 +1271,6 @@ const rejectKycRequest = asyncHandler(async (req, res) => {
     throw new Error(`Error rejecting KYC request: ${error.message}`);
   }
 });
-
-
-
-
-
-
 
 module.exports = {
   registerUser,
