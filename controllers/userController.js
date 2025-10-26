@@ -10,6 +10,9 @@ const Token = require("../models/tokenModel");
 const crypto = require("crypto");
 const Cryptr = require("cryptr");
 const Transaction = require("../models/transactionModel");
+const nodemailer = require("nodemailer");
+const multer = require("multer");
+
 
 // const
 
@@ -1114,6 +1117,10 @@ const editDepositBalance = async (req, res) => {
 // });
 
 // controllers/userController.js
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 const uploadKycDocuments = asyncHandler(async (req, res) => {
   try {
     const userId = req.user.id;
@@ -1124,48 +1131,64 @@ const uploadKycDocuments = asyncHandler(async (req, res) => {
       throw new Error("User not found");
     }
 
+    // If already pending, block multiple submissions
     if (user.kycStatus === "Pending") {
       res.status(400);
       throw new Error("You have already submitted your KYC documents. Please wait for approval.");
     }
 
-    const { frontDoc, backDoc } = req.body;
-
-    if (!frontDoc || !backDoc) {
+    if (!req.files || !req.files.front || !req.files.back) {
       res.status(400);
-      throw new Error("Please provide both front and back document URLs.");
+      throw new Error("Please upload both front and back documents.");
     }
 
-    user.kyc = {
-      frontDoc,
-      backDoc,
-      status: "Pending",
-    };
-    user.kycStatus = "Pending";
+    const frontFile = req.files.front[0];
+    const backFile = req.files.back[0];
 
+    // Update KYC status in DB only (no files)
+    user.kycStatus = "Pending";
     await user.save();
 
-    // Notify admin
-    const adminEmail = process.env.ADMIN_EMAIL || "invest@credibleinvestmentexperts.com";
-    await sendEmail(
-      "New KYC Submission",
-      adminEmail,
-      process.env.EMAIL_USER,
-      process.env.EMAIL_USER,
-      "kyc-notification",
-      user.name,
-      user.kycStatus
-    );
+    // Send email to admin with attachments
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
 
+    const adminEmail = process.env.ADMIN_EMAIL;
+
+    await transporter.sendMail({
+      from: `"${user.name}" <${process.env.EMAIL_USER}>`,
+      to: adminEmail,
+      subject: `New KYC Submission from ${user.name}`,
+      text: `${user.name} just submitted KYC documents.`,
+      attachments: [
+        { filename: frontFile.originalname, content: frontFile.buffer },
+        { filename: backFile.originalname, content: backFile.buffer },
+      ],
+    });
+
+    // Return response with Pending status
     res.status(200).json({
-      message: "KYC documents uploaded successfully!",
-      kyc: user.kyc,
+      message: "KYC submitted successfully! Your documents are now pending approval.",
+      kycStatus: user.kycStatus,
     });
   } catch (error) {
     console.error("KYC Upload Error:", error.message);
-    res.status(500).json({ message: `Error uploading KYC documents: ${error.message}` });
+    res.status(500).json({ message: `Error submitting KYC documents: ${error.message}` });
   }
 });
+
+
+
 
 
 const getPendingKycRequests = asyncHandler(async (req, res) => {
@@ -1306,6 +1329,7 @@ module.exports = {
   approveKycRequest,
   rejectKycRequest,
   sendComposedEmail,
+  upload
 };
 
 // res.send('Log out user')

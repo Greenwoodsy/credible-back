@@ -27,6 +27,7 @@ const {
   approveKycRequest,
   rejectKycRequest,
   sendComposedEmail,
+  upload,
 } = require("../controllers/userController");
 const {
   protect,
@@ -36,10 +37,11 @@ const {
   kycApprovedOnly,
 } = require("../middleware/authMiddleware");
 const router = express.Router();
-const upload = require("../utils/fileUpload"); // Import the file upload middleware
 
-const { impersonateUser, exitImpersonation } = require("../controllers/adminController");
-
+const {
+  impersonateUser,
+  exitImpersonation,
+} = require("../controllers/adminController");
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
@@ -60,16 +62,25 @@ router.patch("/resetPassword/:resetToken", resetPassword);
 router.patch("/changePassword", protect, changePassword);
 router.post("/sendLoginCode/:email", sendLoginCode);
 router.post("/loginWithCode/:email", loginWithCode);
-router.get("/dashboard", protect, verifiedOnly, kycApprovedOnly, getUserTransactions);
+router.get(
+  "/dashboard",
+  protect,
+  verifiedOnly,
+  kycApprovedOnly,
+  getUserTransactions
+);
 
 router.get("/referrals", protect, getReferrals);
-//For admin to be able to edit user investmentbalance 
-router.put("/updateDepositBalance/:id", protect, authorOnly, updateDepositBalance);
+//For admin to be able to edit user investmentbalance
+router.put(
+  "/updateDepositBalance/:id",
+  protect,
+  authorOnly,
+  updateDepositBalance
+);
 router.put("/editDepositBalance/:id", protect, authorOnly, editDepositBalance);
 router.post("/impersonate/:userId", protect, adminOnly, impersonateUser);
 router.post("/exit-impersonation", protect, exitImpersonation);
-
-
 
 router.post("/google/callback", loginWithGoogle);
 // router.post(
@@ -83,16 +94,23 @@ router.post("/google/callback", loginWithGoogle);
 //   uploadKycDocuments // Handle the upload logic
 // );
 
-// routes/userRoutes.js
-router.post("/uploadKycDocuments", protect, verifiedOnly, uploadKycDocuments);
+router.post(
+  "/uploadKycDocuments",
+  protect,
+  verifiedOnly,
+  upload.fields([
+    { name: "front", maxCount: 1 },
+    { name: "back", maxCount: 1 },
+  ]),
+  uploadKycDocuments
+);
 
-
-router.get("/kyc/pending", protect, adminOnly,  getPendingKycRequests);
+router.get("/kyc/pending", protect, adminOnly, getPendingKycRequests);
 
 // Route to approve KYC
-router.patch("/kyc/approve/:id", protect, adminOnly,  approveKycRequest);
+router.patch("/kyc/approve/:id", protect, adminOnly, approveKycRequest);
 
 // Route to reject KYC
-router.patch("/kyc/reject/:id", protect, adminOnly,  rejectKycRequest);
+router.patch("/kyc/reject/:id", protect, adminOnly, rejectKycRequest);
 
 module.exports = router;
