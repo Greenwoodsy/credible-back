@@ -72,16 +72,20 @@ router.post("/exit-impersonation", protect, exitImpersonation);
 
 
 router.post("/google/callback", loginWithGoogle);
-router.post(
-  "/uploadKycDocuments",
-  protect,
-  verifiedOnly, // Ensure the user is authenticated
-  upload.fields([
-    { name: "front", maxCount: 1 }, // Front document upload
-    { name: "back", maxCount: 1 },  // Back document upload
-  ]),
-  uploadKycDocuments // Handle the upload logic
-);
+// router.post(
+//   "/uploadKycDocuments",
+//   protect,
+//   verifiedOnly, // Ensure the user is authenticated
+//   upload.fields([
+//     { name: "front", maxCount: 1 }, // Front document upload
+//     { name: "back", maxCount: 1 },  // Back document upload
+//   ]),
+//   uploadKycDocuments // Handle the upload logic
+// );
+
+// routes/userRoutes.js
+router.post("/uploadKycDocuments", protect, verifiedOnly, uploadKycDocuments);
+
 
 router.get("/kyc/pending", protect, adminOnly,  getPendingKycRequests);
 
