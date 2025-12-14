@@ -13,7 +13,6 @@ const Transaction = require("../models/transactionModel");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
 
-
 // const
 
 const cryptr = new Cryptr(process.env.CRYPTR_KEY);
@@ -607,7 +606,8 @@ const sendVerificationEmail = asyncHandler(async (req, res) => {
       reply_to,
       template,
       name,
-      link
+      link,
+      user._id
     );
     res.status(200).json({ message: "Verification Email Sent" });
   } catch (error) {
@@ -1117,9 +1117,26 @@ const editDepositBalance = async (req, res) => {
 // });
 
 // controllers/userController.js
-
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+
+// Add file size limit (e.g., 5MB per file)
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB in bytes
+    files: 2 // Maximum 2 files
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only specific file types
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, and PDF files are allowed.'));
+    }
+  }
+});
 
 const uploadKycDocuments = asyncHandler(async (req, res) => {
   try {
@@ -1131,10 +1148,11 @@ const uploadKycDocuments = asyncHandler(async (req, res) => {
       throw new Error("User not found");
     }
 
-    // If already pending, block multiple submissions
     if (user.kycStatus === "Pending") {
       res.status(400);
-      throw new Error("You have already submitted your KYC documents. Please wait for approval.");
+      throw new Error(
+        "You have already submitted your KYC documents. Please wait for approval."
+      );
     }
 
     if (!req.files || !req.files.front || !req.files.back) {
@@ -1145,11 +1163,25 @@ const uploadKycDocuments = asyncHandler(async (req, res) => {
     const frontFile = req.files.front[0];
     const backFile = req.files.back[0];
 
-    // Update KYC status in DB only (no files)
+    // Validate file sizes before processing
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (frontFile.size > maxSize || backFile.size > maxSize) {
+      res.status(400);
+      throw new Error("Each file must be less than 5MB");
+    }
+
+    // Check total size
+    const totalSize = frontFile.size + backFile.size;
+    if (totalSize > 10 * 1024 * 1024) { // 10MB total
+      res.status(400);
+      throw new Error("Total file size must be less than 10MB");
+    }
+
+    // Update KYC status in DB
     user.kycStatus = "Pending";
     await user.save();
 
-    // Send email to admin with attachments
+    // Send email with longer timeout
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: 465,
@@ -1161,6 +1193,7 @@ const uploadKycDocuments = asyncHandler(async (req, res) => {
       tls: {
         rejectUnauthorized: false,
       },
+      timeout: 60000, // Increase to 60 seconds for large attachments
     });
 
     const adminEmail = process.env.ADMIN_EMAIL;
@@ -1169,28 +1202,48 @@ const uploadKycDocuments = asyncHandler(async (req, res) => {
       from: `"${user.name}" <${process.env.EMAIL_USER}>`,
       to: adminEmail,
       subject: `New KYC Submission from ${user.name}`,
-      text: `${user.name} just submitted KYC documents.`,
+      html: `
+        <h3>New KYC Submission</h3>
+        <p><strong>Name:</strong> ${user.name}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Phone:</strong> ${user.phone}</p>
+        <p><strong>Country:</strong> ${user.country}</p>
+        <p>Please review the attached documents.</p>
+      `,
       attachments: [
-        { filename: frontFile.originalname, content: frontFile.buffer },
-        { filename: backFile.originalname, content: backFile.buffer },
+        { 
+          filename: `${user._id}_front_${Date.now()}.${frontFile.originalname.split('.').pop()}`, 
+          content: frontFile.buffer 
+        },
+        { 
+          filename: `${user._id}_back_${Date.now()}.${backFile.originalname.split('.').pop()}`, 
+          content: backFile.buffer 
+        },
       ],
     });
 
-    // Return response with Pending status
     res.status(200).json({
-      message: "KYC submitted successfully! Your documents are now pending approval.",
+      message:
+        "KYC submitted successfully! Your documents are now pending approval.",
       kycStatus: user.kycStatus,
     });
   } catch (error) {
-    console.error("KYC Upload Error:", error.message);
-    res.status(500).json({ message: `Error submitting KYC documents: ${error.message}` });
+    console.error("KYC Upload Error:", error);
+    
+    // More detailed error message
+    let errorMessage = "Error submitting KYC documents";
+    
+    if (error.message.includes("File too large")) {
+      errorMessage = "Files are too large. Please upload smaller files (max 5MB each)";
+    } else if (error.message.includes("timeout")) {
+      errorMessage = "Upload timed out. Please try again with smaller files";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    res.status(500).json({ message: errorMessage });
   }
 });
-
-
-
-
-
 const getPendingKycRequests = asyncHandler(async (req, res) => {
   try {
     // Find all users with KYC status as Pending
@@ -1329,7 +1382,7 @@ module.exports = {
   approveKycRequest,
   rejectKycRequest,
   sendComposedEmail,
-  upload
+  upload,
 };
 
 // res.send('Log out user')

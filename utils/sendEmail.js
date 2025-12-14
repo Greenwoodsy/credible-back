@@ -15,7 +15,8 @@ const sendEmail = async (
   plan,
   startDate,
   kycStatus,
-  message // <-- NEW
+  message,
+  userId
 ) => {
   try {
     // Dynamically import nodemailer-express-handlebars
@@ -38,6 +39,12 @@ const sendEmail = async (
         rejectUnauthorized: false,
       },
       timeout: 30000,
+      // Add these headers
+      headers: {
+        "X-Priority": "1",
+        "X-MSMail-Priority": "High",
+        Importance: "high",
+      },
     });
 
     const handlebarOptions = {
@@ -74,12 +81,17 @@ const sendEmail = async (
 
     // Options for sending email
     const options = {
-      from: sent_from,
+      from: `"Credible Investment Experts" <${sent_from}>`,
       to: send_to,
       replyTo: reply_to,
       subject,
       template,
       context,
+      headers: {
+        "X-Entity-Ref-ID": userId ? userId.toString() : "system",
+        "List-Unsubscribe": `<mailto:unsubscribe@credibleinvestmentexperts.com>`,
+      },
+      priority: "high",
     };
 
     // Send Email
@@ -94,4 +106,3 @@ const sendEmail = async (
 };
 
 module.exports = sendEmail;
-
